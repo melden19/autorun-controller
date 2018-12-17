@@ -26,13 +26,19 @@ CONFIG += c++11
 
 SOURCES += \
         main.cpp \
-        mainwindow.cpp
+        mainwindow.cpp \
+    addtostartupwindow.cpp \
+    changevaluewindow.cpp
 
 HEADERS += \
-        mainwindow.h
+        mainwindow.h \
+    addtostartupwindow.h \
+    changevaluewindow.h
 
 FORMS += \
-        mainwindow.ui
+        mainwindow.ui \
+    addtostartupwindow.ui \
+    changevaluewindow.ui
 
 LIBS += -lKernel32
 

@@ -1,13 +1,49 @@
 #include "mainwindow.h"
 #include "ui_mainwindow.h"
 #include "Windows.h"
-#include <winreg.h>
 #include <string>
 #include <vector>
 #include <tchar.h>
 #include <QDebug>
 #include <QMessageBox>
+
 #pragma comment(lib, "advapi32")
+
+std::wstring ReadRegValue(HKEY root, std::wstring key, std::wstring name)
+{
+    HKEY hKey;
+    if (RegOpenKeyEx(root, key.c_str(), 0, KEY_READ, &hKey) != ERROR_SUCCESS)
+        throw "Could not open registry key";
+
+    DWORD type;
+    DWORD cbData;
+    if (RegQueryValueEx(hKey, name.c_str(), NULL, &type, NULL, &cbData) != ERROR_SUCCESS)
+    {
+        RegCloseKey(hKey);
+        throw "Could not read registry value";
+    }
+
+    if (type != REG_SZ)
+    {
+        RegCloseKey(hKey);
+        throw "Incorrect registry value type";
+    }
+
+    std::wstring value(cbData / sizeof(wchar_t), L'\0');
+    if (RegQueryValueEx(hKey, name.c_str(), NULL, NULL, reinterpret_cast<LPBYTE>(&value[0]), &cbData) != ERROR_SUCCESS)
+    {
+        RegCloseKey(hKey);
+        throw "Could not read registry value";
+    }
+
+    RegCloseKey(hKey);
+
+    size_t firstNull = value.find_first_of(L'\0');
+    if (firstNull != std::string::npos)
+        value.resize(firstNull);
+
+    return value;
+}
 
 HKEY OpenRegistryKey(HKEY rootKey, const wchar_t* strSubKey) {
     HKEY hKey;
@@ -95,8 +131,10 @@ MainWindow::MainWindow(QWidget *parent) :
     ui(new Ui::MainWindow)
 {
 //    HKEY hKey = OpenRegistryKey(HKEY_CURRENT_USER, L"SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Run");
-    HKEY hKey = OpenRegistryKey(HKEY_CURRENT_USER, L"SOFTWARE\\MyProject");
-    std::vector<std::wstring> keys = getKeys(hKey);
+//    HKEY hKey = OpenRegistryKey(HKEY_CURRENT_USER, L"SOFTWARE\\MyProject");
+    HKEY path = OpenRegistryKey(HKEY_CURRENT_USER, L"SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Run");
+    this->path = path;
+    std::vector<std::wstring> keys = getKeys(path);
     ui->setupUi(this);
     addAllKeysToList(keys, ui->listWidget);
 }
@@ -108,7 +146,10 @@ MainWindow::~MainWindow()
 
 void MainWindow::on_pushButton_clicked()
 {
-    ui->listWidget->addItem("Some value");
+    addWindow = new AddToStartupWindow(this, ui->listWidget);
+    addWindow->exec();
+
+//    ui->listWidget->addItem("Some value");
 }
 
 void MainWindow::on_pushButton_2_clicked()
@@ -128,4 +169,13 @@ void MainWindow::on_pushButton_2_clicked()
         qDebug() << index;
         list->removeItemWidget(list->takeItem(index));
     }
+}
+
+void MainWindow::on_listWidget_itemDoubleClicked(QListWidgetItem *item)
+{
+    QString value = QString::fromStdWString(ReadRegValue(HKEY_CURRENT_USER, L"SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Run", item->text().toStdWString()));
+    QString key = item->text();
+    changeValueWindow  = new ChangeValueWindow(this, key, value, path);
+    changeValueWindow ->exec();
+//    qDebug() << item->text() << ReadRegValue(HKEY_CURRENT_USER, L"SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Run", item->text().toStdWString());
 }
