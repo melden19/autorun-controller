@@ -1,0 +1,8 @@
+<RCC>
+    <qresource prefix="/rec">
+        <file>images/rsz_add.png</file>
+        <file>images/rsz_quit.png</file>
+        <file>images/rsz_question_markpng.png</file>
+        <file>images/rsz_mechanical-gears-.png</file>
+    </qresource>
+</RCC>

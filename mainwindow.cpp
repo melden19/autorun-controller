@@ -9,6 +9,16 @@
 
 #pragma comment(lib, "advapi32")
 
+void DeleteRegistryKeyAndConfirm(HKEY hKey, LPCTSTR value)
+{
+    LONG res = RegDeleteValueW(hKey, value);
+    if (res != ERROR_SUCCESS) {
+        qDebug() << "error";
+    } else {
+        qDebug() << "success";
+    }
+}
+
 std::wstring ReadRegValue(HKEY root, std::wstring key, std::wstring name)
 {
     HKEY hKey;
@@ -61,37 +71,29 @@ HKEY OpenRegistryKey(HKEY rootKey, const wchar_t* strSubKey) {
 
 std::vector<std::wstring> getKeys(HKEY hKey) {
     std::vector<std::wstring> valuesList;
-    TCHAR    achKey[500];		// buffer for subkey name
-    DWORD    cbName;                   // size of name string
-    TCHAR    achClass[MAX_PATH] = TEXT("");  // buffer for class name
-    DWORD    cchClassName = MAX_PATH;  // size of class string
     DWORD    cSubKeys = 0;               // number of subkeys
     DWORD    cbMaxSubKey;              // longest subkey size
-    DWORD    cchMaxClass;              // longest class string
     DWORD    cValues;              // number of values for key
     DWORD    cchMaxValue;          // longest value name
-    DWORD    cbMaxValueData;       // longest value data
-    DWORD    cbSecurityDescriptor; // size of security descriptor
-    FILETIME ftLastWriteTime;      // last write time
 
-    DWORD i, retCode;
+    LONG retCode, i;
 
     TCHAR  achValue[500];
     DWORD cchValue = 500;
 
     retCode = RegQueryInfoKey(
         hKey,           // key handle
-        NULL,           // buffer for class name
-        NULL,           // size of class string
-        NULL,           // reserved
+        nullptr,           // buffer for class name
+        nullptr,           // size of class string
+        nullptr,           // reserved
         &cSubKeys,      // number of subkeys
         &cbMaxSubKey,   // longest subkey size
-        NULL,           // longest class string
+        nullptr,           // longest class string
         &cValues,			// number of values for this key
         &cchMaxValue,			// longest value name
-        NULL,			// longest value data
-        NULL,			// security descriptor
-        NULL			// last write time
+        nullptr,			// longest value data
+        nullptr,			// security descriptor
+        nullptr			// last write time
     );
 
     if (cValues) {
@@ -106,10 +108,10 @@ std::vector<std::wstring> getKeys(HKEY hKey) {
                 i,
                 achValue,
                 &cchValue,
-                NULL,
-                NULL,
-                NULL,
-                NULL
+                nullptr,
+                nullptr,
+                nullptr,
+                nullptr
             );
             if (retCode == ERROR_SUCCESS) {
                 valuesList.push_back(achValue);
@@ -130,13 +132,14 @@ MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
     ui(new Ui::MainWindow)
 {
-//    HKEY hKey = OpenRegistryKey(HKEY_CURRENT_USER, L"SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Run");
-//    HKEY hKey = OpenRegistryKey(HKEY_CURRENT_USER, L"SOFTWARE\\MyProject");
     HKEY path = OpenRegistryKey(HKEY_CURRENT_USER, L"SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Run");
     this->path = path;
     std::vector<std::wstring> keys = getKeys(path);
     ui->setupUi(this);
     addAllKeysToList(keys, ui->listWidget);
+    ui->statusBar->showMessage("Number of startup programs: " + QString::number(ui->listWidget->count()));
+
+    QApplication::instance()->setAttribute(Qt::AA_DontShowIconsInMenus, true);
 }
 
 MainWindow::~MainWindow()
@@ -146,7 +149,7 @@ MainWindow::~MainWindow()
 
 void MainWindow::on_pushButton_clicked()
 {
-    addWindow = new AddToStartupWindow(this, ui->listWidget);
+    addWindow = new AddToStartupWindow(this, ui->listWidget, path);
     addWindow->exec();
 
 //    ui->listWidget->addItem("Some value");
@@ -157,6 +160,7 @@ void MainWindow::on_pushButton_2_clicked()
     QListWidget* list = ui->listWidget;
     const int index = list->currentRow();
     const QString text = list->currentItem()->text();
+    qDebug() << text;
 
     QMessageBox mb;
     mb.setWindowTitle("Warning");
@@ -166,7 +170,7 @@ void MainWindow::on_pushButton_2_clicked()
     mb.setDefaultButton(QMessageBox::Ok);
     int res = mb.exec();
     if (res == QMessageBox::Ok) {
-        qDebug() << index;
+        DeleteRegistryKeyAndConfirm(path, text.toStdWString().c_str());
         list->removeItemWidget(list->takeItem(index));
     }
 }
@@ -178,4 +182,21 @@ void MainWindow::on_listWidget_itemDoubleClicked(QListWidgetItem *item)
     changeValueWindow  = new ChangeValueWindow(this, key, value, path);
     changeValueWindow ->exec();
 //    qDebug() << item->text() << ReadRegValue(HKEY_CURRENT_USER, L"SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Run", item->text().toStdWString());
+}
+
+void MainWindow::on_actionNew_program_triggered()
+{
+    addWindow = new AddToStartupWindow(this, ui->listWidget, path);
+    addWindow->exec();
+}
+
+void MainWindow::on_actionExit_triggered()
+{
+    QApplication::quit();
+}
+
+void MainWindow::on_actionAbout_triggered()
+{
+    aboutWindow = new About();
+    aboutWindow->exec();
 }

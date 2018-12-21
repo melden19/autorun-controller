@@ -28,17 +28,20 @@ SOURCES += \
         main.cpp \
         mainwindow.cpp \
     addtostartupwindow.cpp \
-    changevaluewindow.cpp
+    changevaluewindow.cpp \
+    about.cpp
 
 HEADERS += \
         mainwindow.h \
     addtostartupwindow.h \
-    changevaluewindow.h
+    changevaluewindow.h \
+    about.h
 
 FORMS += \
         mainwindow.ui \
     addtostartupwindow.ui \
-    changevaluewindow.ui
+    changevaluewindow.ui \
+    about.ui
 
 LIBS += -lKernel32
 
@@ -46,3 +49,8 @@ LIBS += -lKernel32
 qnx: target.path = /tmp/$${TARGET}/bin
 else: unix:!android: target.path = /opt/$${TARGET}/bin
 !isEmpty(target.path): INSTALLS += target
+
+RESOURCES += \
+    resources.qrc
+
+win32:RC_ICONS += StartupManager.ico

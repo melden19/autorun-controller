@@ -1,8 +1,9 @@
 #include "changevaluewindow.h"
 #include "ui_changevaluewindow.h"
 #include "QMessageBox"
+#include "QFileDialog"
 
-void SetRegistryValues(HKEY hRootKey, LPCTSTR lpVal, const wchar_t *value);
+void SetRegistryValue(HKEY hRootKey, LPCTSTR lpVal, const wchar_t *value);
 
 ChangeValueWindow::ChangeValueWindow(QWidget *parent, QString key, QString value, HKEY path) :
     QDialog(parent),
@@ -26,11 +27,11 @@ ChangeValueWindow::~ChangeValueWindow()
 void ChangeValueWindow::on_pushButton_clicked()
 {
     if (value != ui->lineEdit->text())
-    SetRegistryValues(path, key.toStdWString().c_str(), ui->lineEdit->text().toStdWString().c_str());
+    SetRegistryValue(path, key.toStdWString().c_str(), ui->lineEdit->text().toStdWString().c_str());
     this->close();
 }
 
-void SetRegistryValues(HKEY hRootKey, LPCTSTR lpVal, const wchar_t *value)
+void SetRegistryValue(HKEY hRootKey, LPCTSTR lpVal, const wchar_t *value)
 {
     QMessageBox m;
     m.setWindowTitle("Status");
@@ -43,4 +44,17 @@ void SetRegistryValues(HKEY hRootKey, LPCTSTR lpVal, const wchar_t *value)
         m.setText("Success!");
     }
     m.exec();
+}
+
+void ChangeValueWindow::on_pushButton_2_clicked()
+{
+    QString defaultDir = "";
+    QString filename = QFileDialog::getExistingDirectory(
+                 this,
+                "Open folder",
+                defaultDir,
+                QFileDialog::ShowDirsOnly
+                );
+    defaultDir = filename;
+    ui->lineEdit->setText(defaultDir);
 }
