@@ -2,6 +2,7 @@
 #define MAINWINDOW_H
 
 #include <QMainWindow>
+#include <QLabel>
 #include "addtostartupwindow.h"
 #include "changevaluewindow.h"
 #include "about.h"
@@ -32,12 +33,19 @@ private slots:
 
     void on_actionAbout_triggered();
 
+    void on_actionManual_triggered();
+
+    void on_listWidget_itemClicked(QListWidgetItem *item);
+
 public:
     Ui::MainWindow *ui;
     AddToStartupWindow* addWindow;
     ChangeValueWindow* changeValueWindow;
     About* aboutWindow;
     HKEY path;
+    QLabel * m_statusLeft;
+    QLabel * m_statusMiddle;
+    QLabel * m_statusRight;
 };
 
 #endif // MAINWINDOW_H

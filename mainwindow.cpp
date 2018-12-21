@@ -6,6 +6,9 @@
 #include <tchar.h>
 #include <QDebug>
 #include <QMessageBox>
+#include <QDesktopServices>
+#include <QUrl>
+#include <QDir>
 
 #pragma comment(lib, "advapi32")
 
@@ -137,7 +140,14 @@ MainWindow::MainWindow(QWidget *parent) :
     std::vector<std::wstring> keys = getKeys(path);
     ui->setupUi(this);
     addAllKeysToList(keys, ui->listWidget);
-    ui->statusBar->showMessage("Number of startup programs: " + QString::number(ui->listWidget->count()));
+//    ui->statusBar->showMessage("Number of startup programs: " + QString::number(ui->listWidget->count()));
+
+    m_statusLeft = new QLabel("Number of startup programs: " + QString::number(ui->listWidget->count()), this);
+    m_statusLeft->setFrameStyle(QFrame::Plain);
+    m_statusRight = new QLabel(QString::fromStdWString(keys.front()), this);
+    m_statusRight->setFrameStyle(QFrame::Plain);
+    statusBar()->addPermanentWidget(m_statusLeft, 1);
+    statusBar()->addPermanentWidget(m_statusRight, 1);
 
     QApplication::instance()->setAttribute(Qt::AA_DontShowIconsInMenus, true);
 }
@@ -199,4 +209,15 @@ void MainWindow::on_actionAbout_triggered()
 {
     aboutWindow = new About();
     aboutWindow->exec();
+}
+
+void MainWindow::on_actionManual_triggered()
+{
+    QString path = QDir::currentPath() + "/Manual.pdf";
+    QDesktopServices::openUrl(QUrl::fromLocalFile(path));
+}
+
+void MainWindow::on_listWidget_itemClicked(QListWidgetItem *item)
+{
+    m_statusRight->setText(item->text());
 }

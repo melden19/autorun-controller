@@ -48,11 +48,12 @@
      <string>File</string>
     </property>
     <addaction name="actionNew_program"/>
+    <addaction name="separator"/>
     <addaction name="actionExit"/>
    </widget>
    <widget class="QMenu" name="menuAbout_program">
     <property name="title">
-     <string>Help</string>
+     <string>Info</string>
     </property>
     <addaction name="actionAbout"/>
     <addaction name="actionManual"/>
@@ -80,6 +81,9 @@
    <property name="text">
     <string>Exit</string>
    </property>
+   <property name="statusTip">
+    <string>Exit</string>
+   </property>
    <property name="shortcut">
     <string>Ctrl+W</string>
    </property>
@@ -92,6 +96,9 @@
    <property name="text">
     <string>About</string>
    </property>
+   <property name="statusTip">
+    <string>Read about program</string>
+   </property>
   </action>
   <action name="actionNew_program">
    <property name="icon">
@@ -101,13 +108,22 @@
    <property name="text">
     <string>New program</string>
    </property>
+   <property name="statusTip">
+    <string>Add program</string>
+   </property>
    <property name="shortcut">
     <string>Ctrl+N</string>
    </property>
   </action>
   <action name="actionManual">
    <property name="text">
-    <string>Manual</string>
+    <string>Help and manual</string>
+   </property>
+   <property name="statusTip">
+    <string>Instruction for application using </string>
+   </property>
+   <property name="shortcut">
+    <string>F1</string>
    </property>
   </action>
  </widget>

@@ -14,7 +14,7 @@ ChangeValueWindow::ChangeValueWindow(QWidget *parent, QString key, QString value
     this->path=path;
     ui->setupUi(this);
 
-    ui->label->setText("Edit value for " + key);
+    ui->label->setText("Edit path to .exe file for " + key + ":");
     ui->lineEdit->setText(value);
 //    ui->lineEdit->setCursorPosition(0);
 }
@@ -48,13 +48,15 @@ void SetRegistryValue(HKEY hRootKey, LPCTSTR lpVal, const wchar_t *value)
 
 void ChangeValueWindow::on_pushButton_2_clicked()
 {
-    QString defaultDir = "";
-    QString filename = QFileDialog::getExistingDirectory(
+    QString defaultDir = "C:";
+    QString selfilter = tr("EXE (*.exe)");
+    QString filename = QFileDialog::getOpenFileName(
                  this,
-                "Open folder",
+                "Choose file",
                 defaultDir,
-                QFileDialog::ShowDirsOnly
+                tr("All files (*.*);;EXE (*.exe)"),
+                &selfilter
                 );
-    defaultDir = filename;
+    defaultDir = filename.replace("/", "\\");
     ui->lineEdit->setText(defaultDir);
 }
