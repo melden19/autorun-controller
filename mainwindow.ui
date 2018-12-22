@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>268</width>
+    <width>272</width>
     <height>368</height>
    </rect>
   </property>
@@ -16,7 +16,18 @@
   <widget class="QWidget" name="centralWidget">
    <layout class="QVBoxLayout" name="verticalLayout">
     <item>
-     <widget class="QListWidget" name="listWidget"/>
+     <widget class="QLineEdit" name="lineEdit">
+      <property name="placeholderText">
+       <string>Start styping to search</string>
+      </property>
+     </widget>
+    </item>
+    <item>
+     <widget class="QListWidget" name="listWidget">
+      <property name="enabled">
+       <bool>true</bool>
+      </property>
+     </widget>
     </item>
     <item>
      <widget class="QPushButton" name="pushButton_2">
@@ -39,7 +50,7 @@
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>268</width>
+     <width>272</width>
      <height>21</height>
     </rect>
    </property>

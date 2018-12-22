@@ -12,6 +12,14 @@
 
 #pragma comment(lib, "advapi32")
 
+std::wstring toLower(std::wstring str) {
+    transform(
+        str.begin(), str.end(),
+        str.begin(),
+        towlower);
+    return str;
+}
+
 void DeleteRegistryKeyAndConfirm(HKEY hKey, LPCTSTR value)
 {
     LONG res = RegDeleteValueW(hKey, value);
@@ -63,7 +71,7 @@ HKEY OpenRegistryKey(HKEY rootKey, const wchar_t* strSubKey) {
     LONG lError = RegOpenKeyEx(rootKey, strSubKey, NULL, KEY_ALL_ACCESS, &hKey);
 
     if (ERROR_FILE_NOT_FOUND == lError) {
-        lError = RegCreateKeyEx(rootKey, strSubKey, NULL, NULL, REG_OPTION_NON_VOLATILE, KEY_ALL_ACCESS, NULL, &hKey, NULL);
+        lError = RegCreateKeyEx(rootKey, strSubKey, NULL, nullptr, REG_OPTION_NON_VOLATILE, KEY_ALL_ACCESS, nullptr, &hKey, nullptr);
     }
 
     if (ERROR_CREATE_FAILED == lError) {
@@ -126,7 +134,8 @@ std::vector<std::wstring> getKeys(HKEY hKey) {
     return valuesList;
 }
 
-void addAllKeysToList(std::vector<std::wstring> keys, QListWidget* list) {
+void addAllKeysToList(std::vector<std::wstring> keys, QListWidget* list, bool purgeFirstly = false) {
+    if (purgeFirstly) list->clear();
     for (std::vector<std::wstring>::const_iterator i = keys.begin(); i != keys.end(); ++i)
         list->addItem(QString::fromStdWString(*i));
 }
@@ -137,9 +146,10 @@ MainWindow::MainWindow(QWidget *parent) :
 {
     HKEY path = OpenRegistryKey(HKEY_CURRENT_USER, L"SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Run");
     this->path = path;
-    std::vector<std::wstring> keys = getKeys(path);
+    this->keys = getKeys(path);
     ui->setupUi(this);
     addAllKeysToList(keys, ui->listWidget);
+    ui->listWidget->setCurrentRow(0);
 //    ui->statusBar->showMessage("Number of startup programs: " + QString::number(ui->listWidget->count()));
 
     m_statusLeft = new QLabel("Number of startup programs: " + QString::number(ui->listWidget->count()), this);
@@ -220,4 +230,16 @@ void MainWindow::on_actionManual_triggered()
 void MainWindow::on_listWidget_itemClicked(QListWidgetItem *item)
 {
     m_statusRight->setText(item->text());
+}
+
+void MainWindow::on_lineEdit_textChanged(const QString &arg1)
+{
+    std::vector<std::wstring> result;
+    std::copy_if (keys.begin(), keys.end(), std::back_inserter(result), [arg1](std::wstring i) {return toLower(i).find(toLower(arg1.toStdWString())) != std::string::npos;});
+    addAllKeysToList(result, ui->listWidget, true);
+    ui->listWidget->setCurrentRow(0);
+    if (result.size() != 0)
+        m_statusRight->setText(QString::fromStdWString(result.front()));
+    else m_statusRight->setText("No programs match search");
+    m_statusLeft->setText("Number of startup programs: " + QString::number(result.size()));
 }

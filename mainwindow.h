@@ -37,8 +37,11 @@ private slots:
 
     void on_listWidget_itemClicked(QListWidgetItem *item);
 
+    void on_lineEdit_textChanged(const QString &arg1);
+
 public:
     Ui::MainWindow *ui;
+    std::vector<std::wstring> keys;
     AddToStartupWindow* addWindow;
     ChangeValueWindow* changeValueWindow;
     About* aboutWindow;
