@@ -3,6 +3,7 @@
 
 #include <QDialog>
 #include "Windows.h"
+#include "registry_controller.h"
 
 
 namespace Ui {

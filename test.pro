@@ -29,13 +29,15 @@ SOURCES += \
         mainwindow.cpp \
     addtostartupwindow.cpp \
     changevaluewindow.cpp \
-    about.cpp
+    about.cpp \
+    registry_controller.cpp
 
 HEADERS += \
         mainwindow.h \
     addtostartupwindow.h \
     changevaluewindow.h \
-    about.h
+    about.h \
+    registry_controller.h
 
 FORMS += \
         mainwindow.ui \

@@ -4,6 +4,7 @@
 #include <QDialog>
 #include <QListWidget>
 #include "Windows.h"
+#include "registry_controller.h"
 
 namespace Ui {
 class AddToStartupWindow;

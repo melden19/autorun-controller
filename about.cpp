@@ -5,6 +5,7 @@ About::About(QWidget *parent) :
     QDialog(parent),
     ui(new Ui::About)
 {
+    setWindowFlags(windowFlags() & ~Qt::WindowContextHelpButtonHint);
     this->setWindowTitle("About");
     ui->setupUi(this);
 }
@@ -12,4 +13,9 @@ About::About(QWidget *parent) :
 About::~About()
 {
     delete ui;
+}
+
+void About::on_pushButton_clicked()
+{
+    this->close();
 }

@@ -7,6 +7,7 @@
 #include "changevaluewindow.h"
 #include "about.h"
 #include "Windows.h"
+#include "registry_controller.h"
 
 namespace Ui {
 class MainWindow;
